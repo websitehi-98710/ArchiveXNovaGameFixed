@@ -1,631 +1,1262 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>ArchiveXNova</title>
-  <style>
-    * { margin:0; padding:0; box-sizing:border-box; }
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #0a0a0a, #1a1200, #2a1a00);
-      color: #ffd700;
-      min-height: 100vh;
-      padding: 20px 15px;
-      line-height: 1.5;
-      background-attachment: fixed;
-    }
-
-    .container { max-width: 1200px; margin: 0 auto; }
-
-    header { 
-      text-align: center; 
-      margin-bottom: 3rem; 
-      padding: 2rem 0; 
-      position: relative;
-    }
-
-    h1 {
-      font-size: 3.8rem;
-      font-weight: 900;
-      background: linear-gradient(90deg, #f7d358, #ffd700, #ffeb3b, #ffd700, #f7d358);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-size: 200% 100%;
-      animation: goldShimmer 5s linear infinite;
-      text-shadow: 
-        0 0 10px #ffd70080,
-        0 0 25px #ffeb3b60,
-        0 0 40px #f7d35840;
-      letter-spacing: 1px;
-    }
-
-    @keyframes goldShimmer {
-      0% { background-position: 0% 50%; }
-      100% { background-position: 200% 50%; }
-    }
-
-    .subtitle { 
-      font-size: 1.4rem; 
-      color: #e8c670; 
-      margin-top: 0.8rem; 
-      text-shadow: 0 0 8px #ffd70050;
-      letter-spacing: 0.5px;
-    }
-
-    .category {
-      background: linear-gradient(145deg, rgba(40, 30, 0, 0.75), rgba(80, 50, 0, 0.65));
-      border-radius: 20px;
-      padding: 2rem 2.2rem;
-      margin-bottom: 3rem;
-      backdrop-filter: blur(10px);
-      border: 2px solid #d4af37;
-      box-shadow: 
-        0 10px 40px rgba(0,0,0,0.7),
-        inset 0 0 25px rgba(255,215,0,0.12),
-        0 0 30px rgba(212,175,55,0.25);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .category::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: radial-gradient(circle at 30% 20%, rgba(255,215,0,0.18) 0%, transparent 60%);
-      pointer-events: none;
-      animation: goldPulse 12s ease-in-out infinite;
-    }
-
-    @keyframes goldPulse {
-      0%, 100% { opacity: 0.4; transform: scale(1); }
-      50% { opacity: 0.8; transform: scale(1.15); }
-    }
-
-    .category h2 {
-      font-size: 2.6rem;
-      color: #ffeb3b;
-      margin-bottom: 1.8rem;
-      border-bottom: 4px solid #d4af37;
-      padding-bottom: 1rem;
-      text-align: left;
-      text-shadow: 0 0 15px #ffd70080;
-      background: linear-gradient(90deg, #ffd700, #ffeb3b, #ffd700);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-size: 180% 100%;
-      animation: goldTextFlow 6s linear infinite;
-    }
-
-    @keyframes goldTextFlow {
-      0% { background-position: 0% 50%; }
-      100% { background-position: 180% 50%; }
-    }
-
-    .game-list {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 1.2rem 1.4rem;
-      list-style: none;
-    }
-
-    .game-item {
-      background: linear-gradient(135deg, rgba(50, 40, 10, 0.8), rgba(90, 60, 10, 0.6));
-      padding: 1.3rem 1.6rem;
-      border-radius: 14px;
-      border: 1.5px solid #c9a347;
-      transition: all 0.35s ease;
-      font-size: 1.1rem;
-      color: #fff9e6;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.6);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .game-item::after {
-      content: '';
-      position: absolute;
-      top: -100%;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(transparent, rgba(255,215,0,0.25), transparent);
-      transition: all 0.6s ease;
-      pointer-events: none;
-    }
-
-    .game-item:hover {
-      transform: translateY(-8px) scale(1.02);
-      border-color: #ffeb3b;
-      box-shadow: 
-        0 20px 50px rgba(212,175,55,0.4),
-        inset 0 0 30px rgba(255,215,0,0.2);
-      color: #ffffff;
-    }
-
-    .game-item:hover::after {
-      top: 100%;
-    }
-
-    .highlight { 
-      color: #fff176; 
-      font-weight: 700; 
-      text-shadow: 0 0 12px #ffd70090;
-    }
-
-    .emoji { 
-      margin-right: 0.6rem; 
-      font-size: 1.4rem; 
-      filter: drop-shadow(0 0 6px #ffd70080);
-    }
-
-    footer {
-      text-align: center;
-      margin-top: 5rem;
-      padding: 2rem 0;
-      color: #e8c670;
-      font-size: 1.1rem;
-      border-top: 2px solid #d4af37;
-      text-shadow: 0 0 10px #ffd70060;
-      letter-spacing: 1px;
-    }
-
-    @media (max-width: 600px) {
-      h1 { font-size: 2.8rem; }
-      .game-list { grid-template-columns: 1fr; }
-      .category { padding: 1.6rem; }
-      .category h2 { font-size: 2.2rem; }
-    }
-  </style>
-</head>
-<body>
-
-  <div class="container">
-
-    <header>
-      <h1>ArchiveXNova</h1>
-      <div class="subtitle">Hello</div>
-    </header>
-
-    <div id="categoriesContainer"></div>
-
-    <footer>
-      ArchiveXNova
-    </footer>
-
-  </div>
-
-  <script>
-    const categories = {
-      "Simulation": [
-"Dig and Hatch a Brainrot",
-"Adopt a Pet",
-"Rescue Animals",
-"Speed Per Step",
-"Jump RNG",
-"Brainrots +1 Speed Per Step",
-"+1 Car Speed",
-"+1 Speed Bike Escape",
-"+1 Power Per Jump",
-"+1 Jump Per Step",
-"+1 Speed Per Click",
-"School Escape",
-"+1 Speed ESCAPE OBBY",
-"Don't Get Eaten By Hungry Worm",
-"Escape the Tsunami on Bike",
-"+1 Speed Jetpack Escape",
-"+1 speed 67 escape",
-"+1 Speed Backrooms Escape",
-"100 Players Meme Maze",
-"Build to Survive",
-"Save Christmas",
-"[UPD] +1 Jump Per Step",
-"+1 Speed Minion Evolution",
-"Escape 67",
-"+1 Speed Escape Evil Santa",
-"+1 Speed Longest Brainrot Tunnel",
-"+1 Speed to ESCAPE",
-"+1 Speed Garden Escape",
-"Keyboard ASMR Speed Escape",
-"+1 Speed Survival",
-"+1 Speed Per BITE",
-"Become the fastest Brainrot",
-"+1 Speed Hospital Escape",
-"+1 Speed Prison Escape",
-"+1 Speed Rock Escape",
-"Bridge to Brainrot",
-"+1 Size Per Second Sammy",
-"+1 Speed every JUMP!!",
-"Bigger Every Step!",
-"Build to Ski!",
-"+1 Speed Car Escape",
-"Escape The Acid",
-"Run or Die",
-"Be Fast Or DIE",
-"Escape The Lava",
-"Tap Simulator",
-"Grass Cutters",
-"Dangerous Horse Riding",
-"BIGGEST SLIDE EVER",
-"Get Steps",
-"+1 Speed Skateboard Escape",
-"Get Sucked OR RUNNNNN!!!",
-"+1 Speed Bridge Building",
-"Bubu +1 Speed Per Step",
-"Escape The Volcano!",
-"Sail Down A River",
-"Escape the Prison",
-"+1 Horse Speed Escape",
-"+1 Speed Freddy Escape",
-"[ABILITIES] +1 Speed Freddy Escape",
-"Escape a Brainrot",
-"Escape the Lava on Bike",
-"+1 Speed Per Step Tower",
-"+1 Speed 67 Evolution",
-"+1 Speed Motorcycle Escape",
-"99 Nights +1 Size Per Click",
-"Ball +1 Speed Per Step",
-"Drive A Car Down A Slide",
-"+1 Speed Skate Escape",
-"+1 Jump Pogo Escape",
-"+1 Speed On a Bike",
-"+1 Speed Boat Escape",
-"+1 Speed Animal Ride",
-"+1 Speed Keyboard Escape",
-"Escape Logs for Brainrots",
-"+1 Speed Roller Escape",
-"+1 Speed Scooter Escape",
-"+1 Speed Roll Escape",
-"+1 Speed Raft Escape",
-"+1 Speed Wheelchair Escape",
-"+1 Speed Unicycle Escape",
-"+1 Speed Rocket Escape",
-"+1 Speed Horror Escape",
-"Ninja +1 Speed Per Step",
-"+1 SPEED BRAINROT PETS",
-"+1 Superhero Speed",
-"+1 SkillPoint Every Second",
-"Run From Brainrot Obby",
-"+1 Fart Speed Escape",
-"+1 Animal Speed Escape",
-"+1 Swim Speed Escape",
-"+1 Speed Bubu Escape",
-"+1 Clone Speed Escape",
-"+1 Speed to Escape 67",
-"Faster Each Step!",
-"+1 Speed to Escape Sammy",
-"+1 Speed Per Swim",
-"Get Taller Every Second",
-"+1 Speed Plane Escape",
-"+1 Aura Speed Escape",
-"+1 Speed Barrel Escape",
-"+1 Speed Motorcycle Escape",
-"+1 Speed to Escape Prison",
-"+1 Speed Tsunami Escape",
-"+1 Speed Glider Escape",
-"+1 HP Per Step",
-"+1 Jump per Jump",
-"[UPD] +1 Jump Per Step",
-"+1 Speed Car Tsunami Escape",
-"[UPD 1] +1 Speed Animal Escape!",
-"Escape Tsunami For Brainrots",
-"Escape Obbies For Brainrots",
-"Escape poop for brainrots",
-"Survive Volcano for Brainrots",
-"Dragon Ball Tsunami Escape",
-"Save Brainrots from LAVA",
-"+1 Escape Tsunami for Poppy Playtime",
-"Escape Tsunami For Dinosaurs",
-"Escape Lava For Brainrots",
-"Escape Tsunami For Mobs",
-"Escape Tsunami for Soccer Players",
-"Escape Tsunami For Football Clubs",
-"Jump for Brainrots",
-"Escape Tsunami For Phones",
-"Escape Stages For Brainrots!",
-"Floor is Lava for Brainrots!",
-"Escape Getting Crushed For Brainrots",
-"100 Tsunamis Later!",
-"Climb Worm Tower for Brainrots",
-"Glass Bridge For Lucky Blocks!",
-"Escape Tsunami on Bike for Lucky Blocks",
-"Escape Tsunami on Motorcycle for Brainrots",
-"Escape Tung Tung For Brainrots!",
-"Escapa del Tsunami por Apps!",
-"Escape Laser to save Brainrot",
-"+1 Speed Dinosaur Escape",
-"Save Friends From Tsunami!",
-"Escape Tsunami For Cats",
-"Escape Snow For Brainrots !",
-"+1 Jump Tower",
-"+1 Speed Backrooms Escape",
-"+1 Speed Skiing Escape",
-"Escape Rising Lava For Brainrots!",
-"Run For Brainrots!",
-"+1 Speed To Escape Flood",
-"+1 Speed Lava Escape",
-"+1 Speed Facility Escape",
-"Escape Tsunami For FNAF!",
-"+1 Muscle Per Step",
-"+1 Speed Coil Escape",
-"+1 Aura Speed Tsunami Escape",
-"Escape Waves Brainrot Evolution",
-"+1 Speed Rails Escape",
-"+1 Slap Power Per Step",
-"[UPD] +1 Speed Car Escape",
-"Speed Shopping Cart Escape",
-"+1 Speed Police Escape",
-"+1 Fish Speed Escape",
-"+1 Dino Speed Escape",
-"+1 Speed Garden Escape",
-"+1 Speed Poppy Escape",
-"+1 Speed Skibidi Escape",
-"+1 Speed Brainrot Escape",
-"+1 Speed Snowboard Escape",
-"+1 Speed Scary Tower Go Up",
-"Save Brainrots From Backrooms",
-"Speed Hoverboard Escape",
-"Escape Tsunami For Kaiju",
-"Escape Tsunami for Jurassic Dinosaur",
-"Escape Tsunami for Fruits",
-"Escape Tsunami For Lucky Eggs",
-"Escape Tsunami For Superheroes",
-"Escape Tsunami For NBA Players!",
-"Hyper Speed Runner",
-"Jump for Soccer Players",
-"Jump Escape to Steal Soccer Legends",
-"Jump For Poppy Playtime",
-"Jump To Steal Poppy Playtime",
-      ],
-      "Troll-Tower": [
-"Morph Gun Tower",
-"Nightmare Troll Slap Tower",
-"Christmas Troll Tower",
-"Scary Smiley Tower",
-"Escape Troll Tower",
-"Boomerang Tower",
-"Brainrot Tower",
-"Brainrot Morph Tower",
-"Emote Tower",
-"Pink Slap Tower",
-"Don't Get Crushed By 67",
-"Invisible Gun Troll Tower",
-"Hungry Pig Tower",
-"99 Nights in the Tower",
-"Scary Slap Tower",
-"Lucky Troll Tower",
-"UGC Christmas Tower",
-"Cursed Troll Tower",
-"INSANE Gear Slap Tower",
-"Green Bean Tower",
-"Boys And Girls Tower",
-"Verified TROLL Tower",
-"61 Scary Troll Slap Tower",
-"Prop Morph Tower",
-"Jetpack Troll Slap Tower",
-"Scary Troll Animal Tower",
-"Kitty Troll Tower",
-"Tsunami Troll Tower",
-"67 Brainrot Tower",
-"Aura Edit Tower",
-"Troll Escalator Tower",
-"Piano Tower",
-"Keyboard ASMR Troll Tower",
-"Meet Sammy Tower",
-"Gravity Tower 2",
-"Meet A Friend Tower",
-"Winter Tower",
-"Капельница с прыжком по стене",
-"Aura Farm Edit Tower",
-"TOWER GITU AJA?",
-"Pink Keys Asmr Tower!",
-"Troll Battle Tower",
-"Meet 99 Nights Tower",
-"Ability Slap Tower 3",
-"Super Scary Troll Tower",
-"Ay Mi Gatito Tower",
-"Tower Nao Chorax",
-"Find the Slaps Tower",
-"Five Nights at Freddy's Tower",
-"Size Troll Tower",
-"Doodle Tower",
-"Find Sammy Tower",
-"Gear Troll Slap Tower",
-"Ability Slap Tower 3",
-"Nyan Cat Troll Tower",
-"Horror Phonk Troll Tower",
-"Aura Troll Slap Tower",
-"Impossible Slap Tower",
-"Lucky Block Tower",
-"Gravity Coil Tower",
-"IShowSpeed Tower",
-"Find Brainrots Tower [90]",
-"Troll Slap Tower",
-"Gear Slap Tower",
-"Math Tower",
-"ASMR Key Jump Tower",
-"Keyboard ASMR Troll Tower",
-"Coil Troll Tower",
-"67 Obby Tower",
-"Clone Troll Tower",
-"Boxing Gear Troll Tower",
-"Not Cute Anymore",
-"Not Cute Anymore Troll Tower",
-"MISSING BACON: The Tower Update!",
-"Aura Slap Troll Tower",
-"Escape Tsunami Tower!",
-"Choii Choii Cat Tower",
-        ],
-        "Obby": [
-"Run From 67 Obby",
-"Meet Nao Chorax",
-"Jump Into Green Bean",
-"Get Ugc Reward Obby",
-"Obby For Free Rewards",
-"Jump Into 67",
-"Jump Into Brainrot",
-"Free UGC Obby",
-"Jump To Meet Brainrots",
-"Mimi Tower",
-"Tower Of Dreams",
-"Strawberry Tower",
-"Tower Of Banana - Tower Of Hell",
-"Pink Stage Tower",
-"Escape School Obby!",
-"Dreamy Kawaii Obby",
-"oMega Obby",
-"Halloween Obby",
-"EL GATO'S PRISON RUN",
-"SAMMY'S PRISON RUN",
-"RUMI'S PRISON RUN",
-"Drive the ball to the end",
-"Obby, BUT you unlock ABILITIES",
-"DTI Obby",
-"MEGA IMPOSSIBLE OBBY",
-"Rasa Ini Tower Akukuat",
-"Cobain Nih Tower 2",
-"Emang Gini Laser 2",
-"Spiral Tower Obby",
-"SAMMY JUMP ROPE GIANT SAMMY MORPH",
-"Obby But You're On a Bike",
-"Fun Obby Parkour 525 Stages!",
-"Dreamy Kawaii Obby",
-"Fruit Stage Tower",
-"Run From Brainrot Obby",
-"Easy Win Obby",
-"Escape the Hello Kitty's House",
-        ],
-        "Tower": [
-"Ice Skate Tower",
-"The Core of Wallhop Tower",
-"The Mastery Of Wallhop Tower",
-"Sajonara Tower",
-"KiWAMiMU Wallhop Tower",
-"Suka Laser Tower",
-"Sahur Laser Tower",
-      ],
-      "Morph Roleplay": [
-"FIND THE BRAINROT MORPHS",
-"Shin Sonic MORPHS",
-"Poop Morphs!"
-      ],
-      "Puzzle": [
-"Scary Escape Rooms",
-"Prove You Are Not a Dum-Dum",
-"Find The Button!",
-"Find The Button",
-      ],
-      "Horror": [
-"Cheese Escape",
-"Horror Elevator",
-"Scary Elevator (Survive the Killers!)",
-"Fear Elevator",
-      ],
-      "Adventure": [
-"Find the Brainrot",
-"Find Sonic Morph",
-"FIND THE BRAINROT MORPHS",
-"Find and Escape Brainrot",
-"Find a Meme [101+]",
-      ],
-      "Party & Casual": [
-"Team Sammy Color Bridge",
-"Brainrot Image Color Bridge",
-      ],
-      "Roleplay": [
-"Become Any SCP-096"
-      ],
-      "Survival": [
-"Escape Angry Head",
-"Shrek in The Backrooms",
-"Foxy from FNAF Doom",
-"Speed Steps - Brainrot Bridge",
-"Cheese Escape: The Lurking",
-"MEDVED",
-"Use Alt Don't Main Account",
-"Survive Overnight in a Mega Store",
-"Fish It",
-"SIREN HEAD: LEGACY",
-      ],
-      "Mountain": [
-"Mount Celor",
-"Mount Yahihi",
-"Pulau Terapung",
-"MOUNT NGEBUT",
-"Mount Gebok",
-"Mount Morohmoy",
-"Mount Rapuk",
-"Mount Erato Beta",
-"Gunung Pagi",
-"MOUNT ELYSTRA",
-"Mount Ravenveil",
-"GUNUNG AJADEH",
-"MOUNT NERO",
-"SAKURA VALLEY",
-"BETA MOUNT GEMI PINK",
-"Mount Luma",
-"RAYANA MOUNT",
-"MOUNT GEMI V2.0",
-"Mount Extreme",
-"Mount bejirlah",
-"MOUNT VAELUNE",
-"MOUNT EVERLINE",
-"Mount COCO",
-"Mount Atviel",
-      ],
-      "Instant Summit For Mountain": [
-"BETA MOUNT GEMI PINK",
-"MOUNT GEMI V2.0",
-"Mount Extreme",
-"Mount COCO"
-      ]
-    };
-
-    function renderAllCategories() {
-      const container = document.getElementById("categoriesContainer");
-      container.innerHTML = '';
-
-      Object.keys(categories).forEach(catName => {
-        const section = document.createElement("section");
-        section.className = "category";
-
-        const h2 = document.createElement("h2");
-        h2.textContent = catName + ":";
-        section.appendChild(h2);
-
-        const ul = document.createElement("ul");
-        ul.className = "game-list";
-
-        categories[catName].forEach(game => {
-          const li = document.createElement("li");
-          li.className = "game-item";
-
-          let content = game;
-
-          const emojiMatch = content.match(/^([\u{1F300}-\u{1F5FF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}])/u);
-          if (emojiMatch) {
-            content = `<span class="emoji">${emojiMatch[0]}</span> ${content.slice(emojiMatch[0].length).trim()}`;
-          }
-
-          if (content.includes("+1 ") || content.includes("[UPD]") || content.includes("Speed") || content.includes("TROLL")) {
-            content = `<span class="highlight">${content}</span>`;
-          }
-
-          li.innerHTML = content;
-          ul.appendChild(li);
-        });
-
-        section.appendChild(ul);
-        container.appendChild(section);
-      });
-    }
-
-    renderAllCategories();
-  </script>
-
-</body>
-
+<!DOCTYPE html>
+
+<html lang="id">
+
+<head>
+
+  <meta charset="UTF-8" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <title>ArchiveXNova</title>
+
+  <style>
+
+    * { margin:0; padding:0; box-sizing:border-box; }
+
+    body {
+
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+      background: linear-gradient(135deg, #0a0a0a, #1a1200, #2a1a00);
+
+      color: #ffd700;
+
+      min-height: 100vh;
+
+      padding: 20px 15px;
+
+      line-height: 1.5;
+
+      background-attachment: fixed;
+
+    }
+
+
+
+    .container { max-width: 1200px; margin: 0 auto; }
+
+
+
+    header { 
+
+      text-align: center; 
+
+      margin-bottom: 3rem; 
+
+      padding: 2rem 0; 
+
+      position: relative;
+
+    }
+
+
+
+    h1 {
+
+      font-size: 3.8rem;
+
+      font-weight: 900;
+
+      background: linear-gradient(90deg, #f7d358, #ffd700, #ffeb3b, #ffd700, #f7d358);
+
+      -webkit-background-clip: text;
+
+      -webkit-text-fill-color: transparent;
+
+      background-size: 200% 100%;
+
+      animation: goldShimmer 5s linear infinite;
+
+      text-shadow: 
+
+        0 0 10px #ffd70080,
+
+        0 0 25px #ffeb3b60,
+
+        0 0 40px #f7d35840;
+
+      letter-spacing: 1px;
+
+    }
+
+
+
+    @keyframes goldShimmer {
+
+      0% { background-position: 0% 50%; }
+
+      100% { background-position: 200% 50%; }
+
+    }
+
+
+
+    .subtitle { 
+
+      font-size: 1.4rem; 
+
+      color: #e8c670; 
+
+      margin-top: 0.8rem; 
+
+      text-shadow: 0 0 8px #ffd70050;
+
+      letter-spacing: 0.5px;
+
+    }
+
+
+
+    .category {
+
+      background: linear-gradient(145deg, rgba(40, 30, 0, 0.75), rgba(80, 50, 0, 0.65));
+
+      border-radius: 20px;
+
+      padding: 2rem 2.2rem;
+
+      margin-bottom: 3rem;
+
+      backdrop-filter: blur(10px);
+
+      border: 2px solid #d4af37;
+
+      box-shadow: 
+
+        0 10px 40px rgba(0,0,0,0.7),
+
+        inset 0 0 25px rgba(255,215,0,0.12),
+
+        0 0 30px rgba(212,175,55,0.25);
+
+      position: relative;
+
+      overflow: hidden;
+
+    }
+
+
+
+    .category::before {
+
+      content: '';
+
+      position: absolute;
+
+      top: -50%;
+
+      left: -50%;
+
+      width: 200%;
+
+      height: 200%;
+
+      background: radial-gradient(circle at 30% 20%, rgba(255,215,0,0.18) 0%, transparent 60%);
+
+      pointer-events: none;
+
+      animation: goldPulse 12s ease-in-out infinite;
+
+    }
+
+
+
+    @keyframes goldPulse {
+
+      0%, 100% { opacity: 0.4; transform: scale(1); }
+
+      50% { opacity: 0.8; transform: scale(1.15); }
+
+    }
+
+
+
+    .category h2 {
+
+      font-size: 2.6rem;
+
+      color: #ffeb3b;
+
+      margin-bottom: 1.8rem;
+
+      border-bottom: 4px solid #d4af37;
+
+      padding-bottom: 1rem;
+
+      text-align: left;
+
+      text-shadow: 0 0 15px #ffd70080;
+
+      background: linear-gradient(90deg, #ffd700, #ffeb3b, #ffd700);
+
+      -webkit-background-clip: text;
+
+      -webkit-text-fill-color: transparent;
+
+      background-size: 180% 100%;
+
+      animation: goldTextFlow 6s linear infinite;
+
+    }
+
+
+
+    @keyframes goldTextFlow {
+
+      0% { background-position: 0% 50%; }
+
+      100% { background-position: 180% 50%; }
+
+    }
+
+
+
+    .game-list {
+
+      display: grid;
+
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+
+      gap: 1.2rem 1.4rem;
+
+      list-style: none;
+
+    }
+
+
+
+    .game-item {
+
+      background: linear-gradient(135deg, rgba(50, 40, 10, 0.8), rgba(90, 60, 10, 0.6));
+
+      padding: 1.3rem 1.6rem;
+
+      border-radius: 14px;
+
+      border: 1.5px solid #c9a347;
+
+      transition: all 0.35s ease;
+
+      font-size: 1.1rem;
+
+      color: #fff9e6;
+
+      box-shadow: 0 6px 20px rgba(0,0,0,0.6);
+
+      position: relative;
+
+      overflow: hidden;
+
+    }
+
+
+
+    .game-item::after {
+
+      content: '';
+
+      position: absolute;
+
+      top: -100%;
+
+      left: 0;
+
+      width: 100%;
+
+      height: 100%;
+
+      background: linear-gradient(transparent, rgba(255,215,0,0.25), transparent);
+
+      transition: all 0.6s ease;
+
+      pointer-events: none;
+
+    }
+
+
+
+    .game-item:hover {
+
+      transform: translateY(-8px) scale(1.02);
+
+      border-color: #ffeb3b;
+
+      box-shadow: 
+
+        0 20px 50px rgba(212,175,55,0.4),
+
+        inset 0 0 30px rgba(255,215,0,0.2);
+
+      color: #ffffff;
+
+    }
+
+
+
+    .game-item:hover::after {
+
+      top: 100%;
+
+    }
+
+
+
+    .highlight { 
+
+      color: #fff176; 
+
+      font-weight: 700; 
+
+      text-shadow: 0 0 12px #ffd70090;
+
+    }
+
+
+
+    .emoji { 
+
+      margin-right: 0.6rem; 
+
+      font-size: 1.4rem; 
+
+      filter: drop-shadow(0 0 6px #ffd70080);
+
+    }
+
+
+
+    footer {
+
+      text-align: center;
+
+      margin-top: 5rem;
+
+      padding: 2rem 0;
+
+      color: #e8c670;
+
+      font-size: 1.1rem;
+
+      border-top: 2px solid #d4af37;
+
+      text-shadow: 0 0 10px #ffd70060;
+
+      letter-spacing: 1px;
+
+    }
+
+
+
+    @media (max-width: 600px) {
+
+      h1 { font-size: 2.8rem; }
+
+      .game-list { grid-template-columns: 1fr; }
+
+      .category { padding: 1.6rem; }
+
+      .category h2 { font-size: 2.2rem; }
+
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+
+
+  <div class="container">
+
+
+
+    <header>
+
+      <h1>ArchiveXNova</h1>
+
+      <div class="subtitle">Hello</div>
+
+    </header>
+
+
+
+    <div id="categoriesContainer"></div>
+
+
+
+    <footer>
+
+      ArchiveXNova
+
+    </footer>
+
+
+
+  </div>
+
+
+
+  <script>
+
+    const categories = {
+
+      "Simulation": [
+
+"Dig and Hatch a Brainrot",
+
+"Adopt a Pet",
+
+"Rescue Animals",
+
+"Speed Per Step",
+
+"Jump RNG",
+
+"Brainrots +1 Speed Per Step",
+
+"+1 Car Speed",
+
+"+1 Speed Bike Escape",
+
+"+1 Power Per Jump",
+
+"+1 Jump Per Step",
+
+"+1 Speed Per Click",
+
+"School Escape",
+
+"+1 Speed ESCAPE OBBY",
+
+"Don't Get Eaten By Hungry Worm",
+
+"Escape the Tsunami on Bike",
+
+"+1 Speed Jetpack Escape",
+
+"+1 speed 67 escape",
+
+"+1 Speed Backrooms Escape",
+
+"100 Players Meme Maze",
+
+"Build to Survive",
+
+"Save Christmas",
+
+"[UPD] +1 Jump Per Step",
+
+"+1 Speed Minion Evolution",
+
+"Escape 67",
+
+"+1 Speed Escape Evil Santa",
+
+"+1 Speed Longest Brainrot Tunnel",
+
+"+1 Speed to ESCAPE",
+
+"+1 Speed Garden Escape",
+
+"Keyboard ASMR Speed Escape",
+
+"+1 Speed Survival",
+
+"+1 Speed Per BITE",
+
+"Become the fastest Brainrot",
+
+"+1 Speed Hospital Escape",
+
+"+1 Speed Prison Escape",
+
+"+1 Speed Rock Escape",
+
+"Bridge to Brainrot",
+
+"+1 Size Per Second Sammy",
+
+"+1 Speed every JUMP!!",
+
+"Bigger Every Step!",
+
+"Build to Ski!",
+
+"+1 Speed Car Escape",
+
+"Escape The Acid",
+
+"Run or Die",
+
+"Be Fast Or DIE",
+
+"Escape The Lava",
+
+"Tap Simulator",
+
+"Grass Cutters",
+
+"Dangerous Horse Riding",
+
+"BIGGEST SLIDE EVER",
+
+"Get Steps",
+
+"+1 Speed Skateboard Escape",
+
+"Get Sucked OR RUNNNNN!!!",
+
+"+1 Speed Bridge Building",
+
+"Bubu +1 Speed Per Step",
+
+"Escape The Volcano!",
+
+"Sail Down A River",
+
+"Escape the Prison",
+
+"+1 Horse Speed Escape",
+
+"+1 Speed Freddy Escape",
+
+"[ABILITIES] +1 Speed Freddy Escape",
+
+"Escape a Brainrot",
+
+"Escape the Lava on Bike",
+
+"+1 Speed Per Step Tower",
+
+"+1 Speed 67 Evolution",
+
+"+1 Speed Motorcycle Escape",
+
+"99 Nights +1 Size Per Click",
+
+"Ball +1 Speed Per Step",
+
+"Drive A Car Down A Slide",
+
+"+1 Speed Skate Escape",
+
+"+1 Jump Pogo Escape",
+
+"+1 Speed On a Bike",
+
+"+1 Speed Boat Escape",
+
+"+1 Speed Animal Ride",
+
+"+1 Speed Keyboard Escape",
+
+"Escape Logs for Brainrots",
+
+"+1 Speed Roller Escape",
+
+"+1 Speed Scooter Escape",
+
+"+1 Speed Roll Escape",
+
+"+1 Speed Raft Escape",
+
+"+1 Speed Wheelchair Escape",
+
+"+1 Speed Unicycle Escape",
+
+"+1 Speed Rocket Escape",
+
+"+1 Speed Horror Escape",
+
+"Ninja +1 Speed Per Step",
+
+"+1 SPEED BRAINROT PETS",
+
+"+1 Superhero Speed",
+
+"+1 SkillPoint Every Second",
+
+"Run From Brainrot Obby",
+
+"+1 Fart Speed Escape",
+
+"+1 Animal Speed Escape",
+
+"+1 Swim Speed Escape",
+
+"+1 Speed Bubu Escape",
+
+"+1 Clone Speed Escape",
+
+"+1 Speed to Escape 67",
+
+"Faster Each Step!",
+
+"+1 Speed to Escape Sammy",
+
+"+1 Speed Per Swim",
+
+"Get Taller Every Second",
+
+"+1 Speed Plane Escape",
+
+"+1 Aura Speed Escape",
+
+"+1 Speed Barrel Escape",
+
+"+1 Speed Motorcycle Escape",
+
+"+1 Speed to Escape Prison",
+
+"+1 Speed Tsunami Escape",
+
+"+1 Speed Glider Escape",
+
+"+1 HP Per Step",
+
+"+1 Jump per Jump",
+
+"[UPD] +1 Jump Per Step",
+
+"+1 Speed Car Tsunami Escape",
+
+"[UPD 1] +1 Speed Animal Escape!",
+
+"Escape Tsunami For Brainrots",
+
+"Escape Obbies For Brainrots",
+
+"Escape poop for brainrots",
+
+"Survive Volcano for Brainrots",
+
+"Dragon Ball Tsunami Escape",
+
+"Save Brainrots from LAVA",
+
+"+1 Escape Tsunami for Poppy Playtime",
+
+"Escape Tsunami For Dinosaurs",
+
+"Escape Lava For Brainrots",
+
+"Escape Tsunami For Mobs",
+
+"Escape Tsunami for Soccer Players",
+
+"Escape Tsunami For Football Clubs",
+
+"Jump for Brainrots",
+
+"Escape Tsunami For Phones",
+
+"Escape Stages For Brainrots!",
+
+"Floor is Lava for Brainrots!",
+
+"Escape Getting Crushed For Brainrots",
+
+"100 Tsunamis Later!",
+
+"Climb Worm Tower for Brainrots",
+
+"Glass Bridge For Lucky Blocks!",
+
+"Escape Tsunami on Bike for Lucky Blocks",
+
+"Escape Tsunami on Motorcycle for Brainrots",
+
+"Escape Tung Tung For Brainrots!",
+
+"Escapa del Tsunami por Apps!",
+
+"Escape Laser to save Brainrot",
+
+"+1 Speed Dinosaur Escape",
+
+"Save Friends From Tsunami!",
+
+"Escape Tsunami For Cats",
+
+"Escape Snow For Brainrots !",
+
+"+1 Jump Tower",
+
+"+1 Speed Backrooms Escape",
+
+"+1 Speed Skiing Escape",
+
+"Escape Rising Lava For Brainrots!",
+
+"Run For Brainrots!",
+
+"+1 Speed To Escape Flood",
+
+"+1 Speed Lava Escape",
+
+"+1 Speed Facility Escape",
+
+"Escape Tsunami For FNAF!",
+
+"+1 Muscle Per Step",
+
+"+1 Speed Coil Escape",
+
+"+1 Aura Speed Tsunami Escape",
+
+"Escape Waves Brainrot Evolution",
+
+"+1 Speed Rails Escape",
+
+"+1 Slap Power Per Step",
+
+"[UPD] +1 Speed Car Escape",
+
+"Speed Shopping Cart Escape",
+
+"+1 Speed Police Escape",
+
+"+1 Fish Speed Escape",
+
+"+1 Dino Speed Escape",
+
+"+1 Speed Garden Escape",
+
+"+1 Speed Poppy Escape",
+
+"+1 Speed Skibidi Escape",
+
+"+1 Speed Brainrot Escape",
+
+"+1 Speed Snowboard Escape",
+
+"+1 Speed Scary Tower Go Up",
+
+"Save Brainrots From Backrooms",
+
+"Speed Hoverboard Escape",
+
+"Escape Tsunami For Kaiju",
+
+"Escape Tsunami for Jurassic Dinosaur",
+
+"Escape Tsunami for Fruits",
+
+"Escape Tsunami For Lucky Eggs",
+
+"Escape Tsunami For Superheroes",
+
+"Escape Tsunami For NBA Players!",
+
+"Hyper Speed Runner",
+
+"Jump for Soccer Players",
+
+"Jump Escape to Steal Soccer Legends",
+
+"Jump For Poppy Playtime",
+
+"Jump To Steal Poppy Playtime",
+
+      ],
+
+      "Troll-Tower": [
+
+"Morph Gun Tower",
+
+"Nightmare Troll Slap Tower",
+
+"Christmas Troll Tower",
+
+"Scary Smiley Tower",
+
+"Escape Troll Tower",
+
+"Boomerang Tower",
+
+"Brainrot Tower",
+
+"Brainrot Morph Tower",
+
+"Emote Tower",
+
+"Pink Slap Tower",
+
+"Don't Get Crushed By 67",
+
+"Invisible Gun Troll Tower",
+
+"Hungry Pig Tower",
+
+"99 Nights in the Tower",
+
+"Scary Slap Tower",
+
+"Lucky Troll Tower",
+
+"UGC Christmas Tower",
+
+"Cursed Troll Tower",
+
+"INSANE Gear Slap Tower",
+
+"Green Bean Tower",
+
+"Boys And Girls Tower",
+
+"Verified TROLL Tower",
+
+"61 Scary Troll Slap Tower",
+
+"Prop Morph Tower",
+
+"Jetpack Troll Slap Tower",
+
+"Scary Troll Animal Tower",
+
+"Kitty Troll Tower",
+
+"Tsunami Troll Tower",
+
+"67 Brainrot Tower",
+
+"Aura Edit Tower",
+
+"Troll Escalator Tower",
+
+"Piano Tower",
+
+"Keyboard ASMR Troll Tower",
+
+"Meet Sammy Tower",
+
+"Gravity Tower 2",
+
+"Meet A Friend Tower",
+
+"Winter Tower",
+
+"Капельница с прыжком по стене",
+
+"Aura Farm Edit Tower",
+
+"TOWER GITU AJA?",
+
+"Pink Keys Asmr Tower!",
+
+"Troll Battle Tower",
+
+"Meet 99 Nights Tower",
+
+"Ability Slap Tower 3",
+
+"Super Scary Troll Tower",
+
+"Ay Mi Gatito Tower",
+
+"Tower Nao Chorax",
+
+"Find the Slaps Tower",
+
+"Five Nights at Freddy's Tower",
+
+"Size Troll Tower",
+
+"Doodle Tower",
+
+"Find Sammy Tower",
+
+"Gear Troll Slap Tower",
+
+"Ability Slap Tower 3",
+
+"Nyan Cat Troll Tower",
+
+"Horror Phonk Troll Tower",
+
+"Aura Troll Slap Tower",
+
+"Impossible Slap Tower",
+
+"Lucky Block Tower",
+
+"Gravity Coil Tower",
+
+"IShowSpeed Tower",
+
+"Find Brainrots Tower [90]",
+
+"Troll Slap Tower",
+
+"Gear Slap Tower",
+
+"Math Tower",
+
+"ASMR Key Jump Tower",
+
+"Keyboard ASMR Troll Tower",
+
+"Coil Troll Tower",
+
+"67 Obby Tower",
+
+"Clone Troll Tower",
+
+"Boxing Gear Troll Tower",
+
+"Not Cute Anymore",
+
+"Not Cute Anymore Troll Tower",
+
+"MISSING BACON: The Tower Update!",
+
+"Aura Slap Troll Tower",
+
+"Escape Tsunami Tower!",
+
+"Choii Choii Cat Tower",
+
+"+1 Speed Slap Tower",
+        ],
+
+        "Obby": [
+
+"Run From 67 Obby",
+
+"Meet Nao Chorax",
+
+"Jump Into Green Bean",
+
+"Get Ugc Reward Obby",
+
+"Obby For Free Rewards",
+
+"Jump Into 67",
+
+"Jump Into Brainrot",
+
+"Free UGC Obby",
+
+"Jump To Meet Brainrots",
+
+"Mimi Tower",
+
+"Tower Of Dreams",
+
+"Strawberry Tower",
+
+"Tower Of Banana - Tower Of Hell",
+
+"Pink Stage Tower",
+
+"Escape School Obby!",
+
+"Dreamy Kawaii Obby",
+
+"oMega Obby",
+
+"Halloween Obby",
+
+"EL GATO'S PRISON RUN",
+
+"SAMMY'S PRISON RUN",
+
+"RUMI'S PRISON RUN",
+
+"Drive the ball to the end",
+
+"Obby, BUT you unlock ABILITIES",
+
+"DTI Obby",
+
+"MEGA IMPOSSIBLE OBBY",
+
+"Rasa Ini Tower Akukuat",
+
+"Cobain Nih Tower 2",
+
+"Emang Gini Laser 2",
+
+"Spiral Tower Obby",
+
+"SAMMY JUMP ROPE GIANT SAMMY MORPH",
+
+"Obby But You're On a Bike",
+
+"Fun Obby Parkour 525 Stages!",
+
+"Dreamy Kawaii Obby",
+
+"Fruit Stage Tower",
+
+"Run From Brainrot Obby",
+
+"Easy Win Obby",
+
+"Escape the Hello Kitty's House",
+
+        ],
+
+        "Tower": [
+
+"Ice Skate Tower",
+
+"The Core of Wallhop Tower",
+
+"The Mastery Of Wallhop Tower",
+
+"Sajonara Tower",
+
+"KiWAMiMU Wallhop Tower",
+
+"Suka Laser Tower",
+
+"Sahur Laser Tower",
+
+      ],
+
+      "Morph Roleplay": [
+
+"FIND THE BRAINROT MORPHS",
+
+"Shin Sonic MORPHS",
+
+"Poop Morphs!"
+
+      ],
+
+      "Puzzle": [
+
+"Scary Escape Rooms",
+
+"Prove You Are Not a Dum-Dum",
+
+"Find The Button!",
+
+"Find The Button",
+
+      ],
+
+      "Horror": [
+
+"Cheese Escape",
+
+"Horror Elevator",
+
+"Scary Elevator (Survive the Killers!)",
+
+"Fear Elevator",
+
+      ],
+
+      "Adventure": [
+
+"Find the Brainrot",
+
+"Find Sonic Morph",
+
+"FIND THE BRAINROT MORPHS",
+
+"Find and Escape Brainrot",
+
+"Find a Meme [101+]",
+
+      ],
+
+      "Party & Casual": [
+
+"Team Sammy Color Bridge",
+
+"Brainrot Image Color Bridge",
+
+      ],
+
+      "Roleplay": [
+
+"Become Any SCP-096"
+
+      ],
+
+      "Survival": [
+
+"Escape Angry Head",
+
+"Shrek in The Backrooms",
+
+"Foxy from FNAF Doom",
+
+"Speed Steps - Brainrot Bridge",
+
+"Cheese Escape: The Lurking",
+
+"MEDVED",
+
+"Use Alt Don't Main Account",
+
+"Survive Overnight in a Mega Store",
+
+"Fish It",
+
+"SIREN HEAD: LEGACY",
+
+      ],
+
+      "Mountain": [
+
+"Mount Celor",
+
+"Mount Yahihi",
+
+"Pulau Terapung",
+
+"MOUNT NGEBUT",
+
+"Mount Gebok",
+
+"Mount Morohmoy",
+
+"Mount Rapuk",
+
+"Mount Erato Beta",
+
+"Gunung Pagi",
+
+"MOUNT ELYSTRA",
+
+"Mount Ravenveil",
+
+"GUNUNG AJADEH",
+
+"MOUNT NERO",
+
+"SAKURA VALLEY",
+
+"BETA MOUNT GEMI PINK",
+
+"Mount Luma",
+
+"RAYANA MOUNT",
+
+"MOUNT GEMI V2.0",
+
+"Mount Extreme",
+
+"Mount bejirlah",
+
+"MOUNT VAELUNE",
+
+"MOUNT EVERLINE",
+
+"Mount COCO",
+
+"Mount Atviel",
+
+      ],
+
+      "Instant Summit For Mountain": [
+
+"BETA MOUNT GEMI PINK",
+
+"MOUNT GEMI V2.0",
+
+"Mount Extreme",
+
+"Mount COCO"
+
+      ]
+
+    };
+
+
+
+    function renderAllCategories() {
+
+      const container = document.getElementById("categoriesContainer");
+
+      container.innerHTML = '';
+
+
+
+      Object.keys(categories).forEach(catName => {
+
+        const section = document.createElement("section");
+
+        section.className = "category";
+
+
+
+        const h2 = document.createElement("h2");
+
+        h2.textContent = catName + ":";
+
+        section.appendChild(h2);
+
+
+
+        const ul = document.createElement("ul");
+
+        ul.className = "game-list";
+
+
+
+        categories[catName].forEach(game => {
+
+          const li = document.createElement("li");
+
+          li.className = "game-item";
+
+
+
+          let content = game;
+
+
+
+          const emojiMatch = content.match(/^([\u{1F300}-\u{1F5FF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}])/u);
+
+          if (emojiMatch) {
+
+            content = `<span class="emoji">${emojiMatch[0]}</span> ${content.slice(emojiMatch[0].length).trim()}`;
+
+          }
+
+
+
+          if (content.includes("+1 ") || content.includes("[UPD]") || content.includes("Speed") || content.includes("TROLL")) {
+
+            content = `<span class="highlight">${content}</span>`;
+
+          }
+
+
+
+          li.innerHTML = content;
+
+          ul.appendChild(li);
+
+        });
+
+
+
+        section.appendChild(ul);
+
+        container.appendChild(section);
+
+      });
+
+    }
+
+
+
+    renderAllCategories();
+
+  </script>
+
+
+
+</body>
+
+
+
 </html>
