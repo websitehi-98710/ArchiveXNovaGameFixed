@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <meta name="description" content="ArchiveXNova"/>
+  <meta name="keywords" content="Roblox, Game, Brainrot, Escape, Tower, Obby, ArchiveXNova">
+  <meta name="author" content="ArchiveXNova">
   <title>ArchiveXNova</title>
 
   <style>
@@ -11,6 +13,11 @@
       margin: 0; 
       padding: 0; 
       box-sizing: border-box; 
+      /* Mencegah semua teks bisa dipilih/disalin */
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
     }
 
     body {
@@ -38,9 +45,10 @@
       font-size: 3.9rem;
       font-weight: 900;
       background: linear-gradient(90deg, #e0f0ff, #f0f8ff, #c0e0ff, #f0f8ff, #e0f0ff);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
       background-size: 200% 100%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
       animation: snowShimmer 5s linear infinite;
       text-shadow: 
         0 0 20px #c0e0ff,
@@ -102,9 +110,10 @@
       text-align: left;
       text-shadow: 0 0 15px #c0e0ff90;
       background: linear-gradient(90deg, #c0e0ff, #f0f8ff, #c0e0ff);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
       background-size: 180% 100%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
       animation: snowTextFlow 7s linear infinite;
     }
 
@@ -131,6 +140,12 @@
       box-shadow: 0 8px 25px rgba(0,0,0,0.55);
       position: relative;
       overflow: hidden;
+      cursor: pointer;
+      /* Mencegah teks di dalam item game bisa dipilih */
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
     }
 
     .game-item:hover {
@@ -145,6 +160,8 @@
     .emoji { 
       margin-right: 0.7rem; 
       font-size: 1.45rem; 
+      display: inline-block;
+      vertical-align: middle;
     }
 
     footer {
@@ -158,13 +175,128 @@
       letter-spacing: 1.2px;
     }
 
+    /* Scrollbar Styling */
+    ::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #1e2a44;
+      border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #8ab4ff;
+      border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #c0e0ff;
+    }
+
+    /* Loading Animation */
+    .loading {
+      text-align: center;
+      padding: 50px;
+      font-size: 1.5rem;
+      color: #c0e0ff;
+    }
+
     @media (max-width: 640px) {
       h1 { font-size: 2.9rem; }
       .game-list { grid-template-columns: 1fr; }
       .category { padding: 1.7rem 1.5rem; }
-      .category h2 { font-size: 2.3rem; }
+      .category h2 { font-size: 2rem; }
+      .subtitle { font-size: 1.2rem; }
+    }
+
+    /* Tooltip untuk info tambahan */
+    .game-item[data-tooltip]:hover::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.8);
+      color: #fff;
+      padding: 5px 10px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      white-space: nowrap;
+      z-index: 10;
+      pointer-events: none;
+      margin-bottom: 5px;
+    }
+
+    /* Mencegah drag gambar atau teks */
+    img, ::selection {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Menonaktifkan seleksi pada semua elemen */
+    ::selection {
+      background: transparent;
+    }
+    
+    ::-moz-selection {
+      background: transparent;
     }
   </style>
+  
+  <!-- JavaScript untuk mencegah copy/paste via event keyboard & mouse -->
+  <script>
+    // Mencegah klik kanan (context menu)
+    document.addEventListener('contextmenu', function(e) {
+      e.preventDefault();
+      return false;
+    });
+    
+    // Mencegah kombinasi keyboard copy/cut/paste/select all
+    document.addEventListener('keydown', function(e) {
+      // Cek tombol Ctrl/Cmd + (C, X, V, A, S, U)
+      if ((e.ctrlKey || e.metaKey) && 
+          (e.key === 'c' || e.key === 'C' || 
+           e.key === 'x' || e.key === 'X' || 
+           e.key === 'v' || e.key === 'V' || 
+           e.key === 'a' || e.key === 'A' || 
+           e.key === 's' || e.key === 'S' || 
+           e.key === 'u' || e.key === 'U' || 
+           e.key === 'p' || e.key === 'P')) {
+        e.preventDefault();
+        return false;
+      }
+      
+      // Mencegah F12 (developer tools) - opsional
+      if (e.key === 'F12') {
+        e.preventDefault();
+        return false;
+      }
+      
+      // Mencegah Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C (developer tools)
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && 
+          (e.key === 'I' || e.key === 'i' || 
+           e.key === 'J' || e.key === 'j' || 
+           e.key === 'C' || e.key === 'c')) {
+        e.preventDefault();
+        return false;
+      }
+    });
+    
+    // Mencegah drag dan drop teks
+    document.addEventListener('dragstart', function(e) {
+      e.preventDefault();
+      return false;
+    });
+    
+    // Mencegah select via mouse (backup)
+    document.addEventListener('selectstart', function(e) {
+      e.preventDefault();
+      return false;
+    });
+    
+    // Notifikasi kecil di console (optional, tidak mengganggu user)
+    console.log('%c⚠️ Teks tidak dapat disalin untuk melindungi konten.', 'color: #ff6600; font-size: 14px;');
+  </script>
 </head>
 <body>
 
@@ -175,15 +307,17 @@
       <div class="subtitle"></div>
     </header>
 
-    <div id="categoriesContainer"></div>
+    <div id="categoriesContainer">
+      <div class="loading"></div>
+    </div>
 
     <footer>
-      2026
     </footer>
 
   </div>
 
   <script>
+    // Data lengkap categories - sudah diperbaiki dan ditambahkan yang hilang
     const categories = {
       "Simulation": [
         "Dig and Hatch a Brainrot", "Adopt a Pet", "Rescue Animals", "Speed Per Step", "Jump RNG",
@@ -237,10 +371,10 @@
         "Jump Escape to Steal Soccer Legends", "Jump For Poppy Playtime", "Jump To Steal Poppy Playtime",
         "Survive LAVA for Anime Fruits", "Escape HOLE for Brainrots", "Swing Obby for Poppy Playtime 5!",
         "+1 Run For Poppy Playtime", "Build a Bridge for Brainrots!", "Escape Tsunami for SHARKS",
-        "Run For FNAF!","Violence District","Run for Brainrots ASMR","Escape TSUNAMI for Phones",
-        "Run To Grab Brainrots","Survive Glass Bridge For Brainrots","Shoot Zombies For Brainrots",
-        "Grow Huge for Brainrots","Grow Glacier For Brainrots","Train For Brainrots","Fly to Space for Brainrot"
-        "Run On Glass For Brainrots","Roller for Brainrots!"
+        "Run For FNAF!", "Violence District", "Run for Brainrots ASMR", "Escape TSUNAMI for Phones",
+        "Run To Grab Brainrots", "Survive Glass Bridge For Brainrots", "Shoot Zombies For Brainrots",
+        "Grow Huge for Brainrots", "Grow Glacier For Brainrots", "Train For Brainrots", "Fly to Space for Brainrot",
+        "Run On Glass For Brainrots", "Roller for Brainrots!"
       ],
 
       "Troll-Tower": [
@@ -328,56 +462,91 @@
       ],
       
       "Mountain New": [
-        "MOUNT VELORIA","Mount Cidro","MOUNT SERAPHIM",
-        "MOUNT ALFIRA",
+        "MOUNT VELORIA", "Mount Cidro", "MOUNT SERAPHIM", "MOUNT ALFIRA"
       ],
       
       "ArceusXArchive": [
-        "99% Fail Glass Bridge Obby","Legends Of Speed","Ninja Legends","KPop Demon Hunters Troll Tower",
-        "$15,000 Glass Bridge (Squid Game Obby)","$45,600 Jump Rope!","Brookhaven RP","99 Nights in the Forest Glass Bridge",
-        "RUNAWAY JUMP ROPE","Hamood Habibi Tower","Cross Invisible Path to MAGIC CARPET!","Color Block Run","1% Win Obby",
-        "IMPOSSIBLE Brainrot Glass Bridge","Troll Invisible Tower [CHEAP ADMIN]","Teamwork Tower 2","Obby But You Get TROLLED!",
+        "99% Fail Glass Bridge Obby", "Legends Of Speed", "Ninja Legends", "KPop Demon Hunters Troll Tower",
+        "$15,000 Glass Bridge (Squid Game Obby)", "$45,600 Jump Rope!", "Brookhaven RP", "99 Nights in the Forest Glass Bridge",
+        "RUNAWAY JUMP ROPE", "Hamood Habibi Tower", "Cross Invisible Path to MAGIC CARPET!", "Color Block Run", "1% Win Obby",
+        "IMPOSSIBLE Brainrot Glass Bridge", "Troll Invisible Tower [CHEAP ADMIN]", "Teamwork Tower 2", "Obby But You Get TROLLED!"
       ]
     };
 
+    // Fungsi untuk merender semua kategori
     function renderAllCategories() {
       const container = document.getElementById("categoriesContainer");
+      if (!container) return;
+      
       container.innerHTML = '';
+      let totalGameCount = 0;
 
-      Object.keys(categories).forEach(catName => {
+      // Urutkan nama kategori agar rapi
+      const sortedCategoryNames = Object.keys(categories).sort();
+      
+      for (const catName of sortedCategoryNames) {
+        const gameList = categories[catName];
+        if (!gameList || gameList.length === 0) continue;
+        
+        totalGameCount += gameList.length;
+        
         const section = document.createElement("section");
         section.className = "category";
-
+        
         const h2 = document.createElement("h2");
-        h2.textContent = catName + ":";
+        h2.textContent = catName + " (" + gameList.length + ")";
         section.appendChild(h2);
-
+        
         const ul = document.createElement("ul");
         ul.className = "game-list";
-
-        categories[catName].forEach(game => {
+        
+        gameList.forEach(game => {
           const li = document.createElement("li");
           li.className = "game-item";
-
+          
           let content = game.trim();
-
-          // Emoji detection (jika ada)
+          
+          // Deteksi emoji di awal teks
           const emojiMatch = content.match(/^([\u{1F300}-\u{1F5FF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}])/u);
           if (emojiMatch) {
             content = `<span class="emoji">${emojiMatch[0]}</span> ${content.slice(emojiMatch[0].length).trim()}`;
+          } else {
+            // Tambahkan emoji default untuk game tanpa emoji
+            content = `<span class="emoji">🎮</span> ${content}`;
           }
-
+          
           li.innerHTML = content;
+          
+          // Tambahkan tooltip untuk deskripsi (opsional)
+          if (game.length > 50) {
+            li.setAttribute('data-tooltip', game);
+          }
+          
           ul.appendChild(li);
         });
-
+        
         section.appendChild(ul);
         container.appendChild(section);
-      });
+      }
+      
+      // Update total game di footer
+      const totalSpan = document.getElementById("totalGames");
+      if (totalSpan) {
+        totalSpan.textContent = totalGameCount;
+      }
+      
+      // Jika tidak ada kategori, tampilkan pesan
+      if (sortedCategoryNames.length === 0) {
+        container.innerHTML = '<div style="text-align:center; padding:50px;">Tidak ada kategori yang tersedia.</div>';
+      }
     }
 
-    // Render saat halaman dimuat
-    renderAllCategories();
+    // Render dengan sedikit delay untuk efek loading
+    window.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+        renderAllCategories();
+      }, 100);
+    });
   </script>
 
 </body>
